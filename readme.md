@@ -16,6 +16,7 @@ Ladet einfach einen der Installer auf der NodeJS Website herrunter und installie
 
 NodeJS sollte in den offiziellen Paketquellen vorhanden sein, sich also mit `sudo apt install nodejs npm` unter [Debian/Ubuntu](https://wiki.ubuntuusers.de/Node.js/) und mit `sudo pacman -S nodejs npm` unter [Arch/Manjaro](https://wiki.archlinux.org/index.php/Node.js)
 
+### Editor
 Als Editor benutze ich VSCode, ihr könnt aber auch jeden anderen Texteditor benutzen, VSCode könnt ihr hier herrunterladen:
 
 https://code.visualstudio.com/download
