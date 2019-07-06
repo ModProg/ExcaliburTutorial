@@ -1,108 +1,119 @@
-# Einrichten
+# Es lebt
 
-Moin Kinner’s, wir nutzen jetzt Excalibur mir TypeScript und WebPack.
+Moin Kinn’ers, nachdem wir letztes Mal ein „Hello World“ geschrieben haben, wollen wir das ganze interaktiver machen.
 
-## Downloads
+## Mausbewegung
 
-Ladet das Projekt von GitHub herrunter: https://github.com/ModProg/ExcaliburTutorial/releases/tag/0
+### Grundlagen
+Als Erstes lassen wir den Schriftzug „Hello World“ der Maus folgen.
 
-Für dieses Projekt braucht ihr NodeJS und NPM, wenn ihr dies noch nicht installiert habt, könnt ihr der Anleitung auf der [Website](https://nodejs.org/de/) von NodeJS folgen.
+Die Methode
+```typescript
+game.input.pointers.primary.on('move', function(evt) {
 
-### Windows 
-
-Ladet einfach einen der Installer auf der NodeJS Website herrunter und installiert ihn. Dabei könnt ihr alle Einstellungen so lassen, wie sie sind.
-
-### Linux
-
-NodeJS sollte in den offiziellen Paketquellen vorhanden sein, sich also mit `sudo apt install nodejs npm` unter [Debian/Ubuntu](https://wiki.ubuntuusers.de/Node.js/) und mit `sudo pacman -S nodejs npm` unter [Arch/Manjaro](https://wiki.archlinux.org/index.php/Node.js)
-
-Als Editor benutze ich VSCode, ihr könnt aber auch jeden anderen Texteditor benutzen, VSCode könnt ihr hier herrunterladen:
-
-https://code.visualstudio.com/download
-
-Hilfe findet ihr für [Debian/Ubuntu](https://wiki.ubuntuusers.de/Visual_Studio_Code/) und [Arch/Manjaro](https://wiki.archlinux.org/index.php/Visual_Studio_Code)
-
-## Projekt öffnen
-
-Nachdem ihr alles herruntergeladen und installiert habt, öffnet den Ordner, in den ihr das Projekt extrahiert/herruntergeladen habt, und öffnet dort das Terminal/CMD/Powershell
-
-### Windows
-
-Entweder `⇧ + Rechte Maustaste` im Dateiexplorer oder ihr gebt `cmd` im Start Menü ein und wechselt dann mit `cd "c:/path/to/folder"` zu dem Ordner, in dem ihr das Projekt habt. 
-
-> Wenn der Ordner auf einer anderen Partition liegt, wechselt einfach mit `d:`, `e:`, etc.
-
-### Linux
-
-Wenn euer Dateiexplorer im Kontextmenü einen Eintrag `Terminal` hat, könnt ihr direkt das Terminal im richtigen Ordner öffnen, alternativ könnt ihr z. B. mit `Strg+Alt+T` das Terminal öffnen und manuel mit `cd "path/to/folder"` zum Projekt navigieren.
-
-Im geöffneten Terminal könnt ihr jetzt `npm install` zum Installieren der nötigen Abhängigkeiten ausführen und anschließend `npm run dev` zum Starten der Anwendung. 
-
-> Wenn es zu Fehlern kommt überprüft noch mal, ob ihr euch auch in dem richtigen Ordner befindet.
-
-Im Idealfall öffnet sich jetzt euer Standard Browser und ihr seht einen blauen Hintergrund, wenn nicht, öffnet `http://localhost:8080/` in einem Browser eurer Wahl.
-
-# Der erste Code
-
-Aller relevante Programmcode liegt zurzeit in einer Datei: `src/index.ts` dies ist sozusagen die Wurzel eures Spiels. 
-
-Die erste Zeile lädt das Modul `excalibur` und stellt es als `ex` zur Verfügung.
+})
+```
+wird aufgerufen, wenn die Maus bewegt wird.
+Um den Text zu bewegen, fügen wir zwischen den geschweiften Klammern:
+```typescript
+game.input.pointers.primary.on('move', function(evt) {
+  helloWorld.pos = evt.target.lastWorldPos
+})
+```
+Wenn wir jetzt speichern und `npm run dev` ausführen, sehen wir das der Text rechts über dem Mauszeiger angezeigt werden. Um das zu ändern, müssen wie die horizontale und vertikale Ausrichtung anpassen.
 
 ```typescript
-import * as ex from 'excalibur';
+// Vertikale Ausrichtung
+helloWorld.baseAlign=ex.BaseAlign.Middle
+// Horizontale Ausrichtung
+helloWorld.textAlign=ex.TextAlign.Center
 ```
 
-Anschließend nutzen wir `ex`, um unsere Spielinstanz zu generieren, was es sich damit auf sich hat, werden wir später noch sehen.
+### Fadenkreuz
+
+Es ergibt natürlich wenig Sinn, „Hello World!“ durch die Gegend zu schieben, deshalb ersetzen wir es jetzt durch das `⊕` Symbol und bringen es in die Mitte des Bildschirms, in dem wir es auf der Hälfte von Höhe und Breite platzieren:
+```typescript
+var helloWorld = new ex.Label('⊕',game.canvasWidth / 2, game.canvasHeight / 2);
+```
+Um den Mauszeiger zu verstecken, fügen wir einfach die Zeile
+```typescript
+game.canvas.style.cursor='none'
+```
+hinzu.
+
+
+## Mausklick
+
+Um den Mausklick zu registrieren, gehen wir ähnlich vor wie bei der Mausbewegung, nur tauschen wir `'move'` durch `'down'` aus:
+
+```typescript
+game.input.pointers.primary.on('down', function (evt) {
+
+})
+```
+
+Immer dann, wenn die Maus gedrückt wird, soll eine Box erzeugt werden an der Stelle des Cursors:
+```typescript
+game.input.pointers.primary.on('down', function (evt) {
+  game.add(new ex.Actor({
+    x: evt.target.lastWorldPos.x,
+    //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
+    y: evt.target.lastWorldPos.y - 10,
+    width: 50,
+    height: 50,
+    color: ex.Color.White
+  }))
+})
+```
+
+Hier haben wir eine andere Möglichkeit genutzt die Parameter zu übergeben, anders als beim `Label` einzeln, haben sind sie in einem Object gebündelt:
+
+```typescript
+{
+  x: evt.target.lastWorldPos.x,
+  //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
+  y: evt.target.lastWorldPos.y - 15,
+  width: 50,
+  height: 50,
+  color: ex.Color.White
+}
+```
+
+Wenn wir das bei unserem Fadenkreuz ebenfalls machen, können wir so
+
+```typescript
+var helloWorld = new ex.Label('⊕', game.canvasWidth / 2, game.canvasHeight / 2);
+helloWorld.fontSize = 100;
+helloWorld.textAlign = ex.TextAlign.Center
+helloWorld.baseAlign = ex.BaseAlign.Middle
+```
+
+zu
+
+```typescript
+var crosshair = new ex.Label({
+  text:'⊕',
+  x:game.canvasWidth / 2,
+  y:game.canvasHeight / 2,
+  fontSize:150,
+  textAlign:ex.TextAlign.Center,
+  baseAlign:ex.BaseAlign.Middle 
+})
+```
+
+Wobei ich `helloWorld` zu `crosshair` umbenannt habe, in VSCode könnt ihr das über die Taste `F2` machen, wenn das nicht funktioniert müsst ihr händisch alle `helloWorld` zu `crosshair` ändern.
+
+Nach dem gleichen Vorgehen, können wir auch das setzen der Hintergrundfarbe verschieben:
 
 ```typescript
 var game = new ex.Engine({
   // Stellt den Darstellungsmodus auf Fullscreen
-  displayMode:ex.DisplayMode.FullScreen
+  displayMode: ex.DisplayMode.FullScreen,
+  backgroundColor: ex.Color.fromRGB(10, 100, 50)
 })
 ```
 
-Die letzte Zeile startet dann das Spiel
-
+statt 
 ```typescript
-game.start()
+game.backgroundColor = ex.Color.fromRGB(0, 150, 100);
 ```
-
-## Erste eigene Zeile Code
-
-Um beispielsweise die Hintergrundfarbe zu ändern, können wir einfach die Zeile
-
-```typescript
-game.backgroundColor = ex.Color.Red;
-```
-
-vor `game.start()` hinzufügen.
-
-Bei der Verwendung eines Editors wie VSCode kann man oft vervollständigungen Anzeigen, in dem man z. B. `Strg + Leertaste` drückt. Wenn wir `Red` entfernen und dann hinter dem Punkt die Vorschläge mit `Strg + Leertaste` anzeigen, sehen wir auf einen Blick alle möglichen Farben, ohne jedes Mal in der Dokumentation nachschauen zu müssen, wenn wir so `Red` ersetzen könnten wir auch eigene Farben erzeugen mit
-
-```typescript
-game.backgroundColor = ex.Color.fromRGB(0,150,100);
-```
-
-Wobei 0, 150 und 100 für wie rot, grün und blau die Farbe ist stehen, und dabei Werte von 0 bis 255 annehmen können.
-
-## Hello World
-
-Nun wollen wir der Welt mitteilen, dass wir Excalibur bedienen können. Dafür fügen wir unser erstes Object, einen `Actor` in unser Spiel hinzu.
-
-Vor `game.start()` fügen wir 
-```typescript
-var helloWorld=new ex.Label("Hello World!",200,200);
-```
-hinzu. Damit haben wir schonmal Text. Mit
-
-```typescript
-game.add(helloWorld);
-```
-
-packen wir den jetzt auch ins Spiel, nur ist er noch recht klein. Die Größe kann dann mit
-
-```typescript
-helloWorld.fontsize=100;
-```
-
-angepasst werden.
