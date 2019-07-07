@@ -20,9 +20,9 @@ game.input.pointers.primary.on('move', function (evt) {
 })
 game.input.pointers.primary.on('down', function (evt) {
   game.add(new ex.Actor({
-    x: evt.target.lastWorldPos.x,
-    //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
-    y: evt.target.lastWorldPos.y - 15,
+    pos: new ex.Vector(evt.target.lastWorldPos.x,
+      //-15 um die Box ein Stück hochzubewegen, damit sie besser passt
+      evt.target.lastWorldPos.y - 15),
     width: 50,
     height: 50,
     color: ex.Color.White
