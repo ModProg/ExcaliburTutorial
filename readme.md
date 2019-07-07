@@ -56,9 +56,9 @@ Immer dann, wenn die Maus gedrückt wird, soll eine Box erzeugt werden an der St
 ```typescript
 game.input.pointers.primary.on('down', function (evt) {
   game.add(new ex.Actor({
-    x: evt.target.lastWorldPos.x,
-    //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
-    y: evt.target.lastWorldPos.y - 10,
+    pos: new Vector(evt.target.lastWorldPos.x,
+      //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
+      evt.target.lastWorldPos.y - 10),
     width: 50,
     height: 50,
     color: ex.Color.White
@@ -70,9 +70,9 @@ Hier haben wir eine andere Möglichkeit genutzt die Parameter zu übergeben, and
 
 ```typescript
 {
-  x: evt.target.lastWorldPos.x,
-  //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
-  y: evt.target.lastWorldPos.y - 15,
+  pos: new Vector(evt.target.lastWorldPos.x,
+    //-15 um die Box ein Stück hochzubewegen, damit sie besser passt
+    evt.target.lastWorldPos.y - 15),
   width: 50,
   height: 50,
   color: ex.Color.White
@@ -93,8 +93,8 @@ zu
 ```typescript
 var crosshair = new ex.Label({
   text:'⊕',
-  x:game.canvasWidth / 2,
-  y:game.canvasHeight / 2,
+  pos: new Vector(game.canvasWidth / 2,
+    game.canvasHeight / 2),
   fontSize:150,
   textAlign:ex.TextAlign.Center,
   baseAlign:ex.BaseAlign.Middle 
