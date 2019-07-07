@@ -1,119 +1,55 @@
-# Es lebt
+# Klassen
 
-Moin Kinn’ers, nachdem wir letztes Mal ein „Hello World“ geschrieben haben, wollen wir das ganze interaktiver machen.
+Moin Kinn’ers, nachdem wir bisher alles in der `index.ts` Datei implementiert haben, werden wir diesmal etwas aufräumen und einige Dinge in andere Klassen auslagern.
 
-## Mausbewegung
-
-### Grundlagen
-Als Erstes lassen wir den Schriftzug „Hello World“ der Maus folgen.
-
-Die Methode
-```typescript
-game.input.pointers.primary.on('move', function(evt) {
-
-})
-```
-wird aufgerufen, wenn die Maus bewegt wird.
-Um den Text zu bewegen, fügen wir zwischen den geschweiften Klammern:
-```typescript
-game.input.pointers.primary.on('move', function(evt) {
-  helloWorld.pos = evt.target.lastWorldPos
-})
-```
-Wenn wir jetzt speichern und `npm run dev` ausführen, sehen wir das der Text rechts über dem Mauszeiger angezeigt werden. Um das zu ändern, müssen wie die horizontale und vertikale Ausrichtung anpassen.
+## Fadenkreuz
+Dafür legen wir die Datei `src/ui.ts` an und erzeugen dort die Klasse `Crosshair`, die die Klasse `ex.Label` erweitert.
 
 ```typescript
-// Vertikale Ausrichtung
-helloWorld.baseAlign=ex.BaseAlign.Middle
-// Horizontale Ausrichtung
-helloWorld.textAlign=ex.TextAlign.Center
-```
+import * as ex from 'excalibur';
+export class Crosshair extends ex.Label {
 
-### Fadenkreuz
-
-Es ergibt natürlich wenig Sinn, „Hello World!“ durch die Gegend zu schieben, deshalb ersetzen wir es jetzt durch das `⊕` Symbol und bringen es in die Mitte des Bildschirms, in dem wir es auf der Hälfte von Höhe und Breite platzieren:
-```typescript
-var helloWorld = new ex.Label('⊕',game.canvasWidth / 2, game.canvasHeight / 2);
-```
-Um den Mauszeiger zu verstecken, fügen wir einfach die Zeile
-```typescript
-game.canvas.style.cursor='none'
-```
-hinzu.
-
-
-## Mausklick
-
-Um den Mausklick zu registrieren, gehen wir ähnlich vor wie bei der Mausbewegung, nur tauschen wir `'move'` durch `'down'` aus:
-
-```typescript
-game.input.pointers.primary.on('down', function (evt) {
-
-})
-```
-
-Immer dann, wenn die Maus gedrückt wird, soll eine Box erzeugt werden an der Stelle des Cursors:
-```typescript
-game.input.pointers.primary.on('down', function (evt) {
-  game.add(new ex.Actor({
-    x: evt.target.lastWorldPos.x,
-    //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
-    y: evt.target.lastWorldPos.y - 10,
-    width: 50,
-    height: 50,
-    color: ex.Color.White
-  }))
-})
-```
-
-Hier haben wir eine andere Möglichkeit genutzt die Parameter zu übergeben, anders als beim `Label` einzeln, haben sind sie in einem Object gebündelt:
-
-```typescript
-{
-  x: evt.target.lastWorldPos.x,
-  //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
-  y: evt.target.lastWorldPos.y - 15,
-  width: 50,
-  height: 50,
-  color: ex.Color.White
 }
 ```
-
-Wenn wir das bei unserem Fadenkreuz ebenfalls machen, können wir so
-
-```typescript
-var helloWorld = new ex.Label('⊕', game.canvasWidth / 2, game.canvasHeight / 2);
-helloWorld.fontSize = 100;
-helloWorld.textAlign = ex.TextAlign.Center
-helloWorld.baseAlign = ex.BaseAlign.Middle
-```
-
-zu
+Diese Klasse soll jetzt die Darstellung des Fadenkreuzes übernehmen. Damit wir auch eine Instanz davon erzeugen können, müssen wir einen `constructor` anlegen:
 
 ```typescript
-var crosshair = new ex.Label({
-  text:'⊕',
-  x:game.canvasWidth / 2,
-  y:game.canvasHeight / 2,
-  fontSize:150,
-  textAlign:ex.TextAlign.Center,
-  baseAlign:ex.BaseAlign.Middle 
-})
+export class Crosshair extends ex.Label {
+  constructor(size: number, x: number, y: number) {
+    super({
+      text: '⊕',
+      x: x,
+      y: y,
+      fontSize: size,
+      textAlign: ex.TextAlign.Center,
+      baseAlign: ex.BaseAlign.Middle
+    })
+  }
+}
 ```
+Den `super`-Konstruktor führen wir mit den Parametern unseres `new ex.Label(...)` Aufrufs von letztem Mal aus und erzeugen so das gleiche Symbol, nur die neuen Parameter `size`, `x` und `y` übergeben wir jetzt.
 
-Wobei ich `helloWorld` zu `crosshair` umbenannt habe, in VSCode könnt ihr das über die Taste `F2` machen, wenn das nicht funktioniert müsst ihr händisch alle `helloWorld` zu `crosshair` ändern.
-
-Nach dem gleichen Vorgehen, können wir auch das setzen der Hintergrundfarbe verschieben:
+In der `index.ts` ersetzen wir den Aufruf 
 
 ```typescript
-var game = new ex.Engine({
-  // Stellt den Darstellungsmodus auf Fullscreen
-  displayMode: ex.DisplayMode.FullScreen,
-  backgroundColor: ex.Color.fromRGB(10, 100, 50)
-})
+var crosshair = new ex.Label(...)
 ```
 
-statt 
+durch 
+
 ```typescript
-game.backgroundColor = ex.Color.fromRGB(0, 150, 100);
+var crosshair = new Crosshair(150, game.canvasWidth / 2, game.canvasHeight / 2)
 ```
+
+Wenn ihr `Crosshair` mit autovervollständigt habt, entfällt möglicherweise der nächste Schritt, weil z. B. VSCode dann selbstständig die notwendige Zeile
+
+```typescript
+import { Crosshair } from './ui';
+```
+
+am Anfang der Datei anfügt. Sollte diese noch fehlen, einfach ergänzen.
+
+## Tasks
+
+Wenn ihr VSCode benutzt, könnt ihr für oft verwendete Actionen eine Aufgabe anlegen, um diese schnell ausführen zu können. Im normalfall, sollte VSCode selbstständig Tasks für dieses Projekt angelegt haben, um einen davon auszuführen, könnt ihr entweder über `Strg + 
+
