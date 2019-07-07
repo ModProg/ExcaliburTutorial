@@ -1,17 +1,11 @@
 import * as ex from 'excalibur';
+import { Crosshair } from './ui';
 var game = new ex.Engine({
   // Stellt den Darstellungsmodus auf Fullscreen
   displayMode: ex.DisplayMode.FullScreen,
   backgroundColor: ex.Color.fromRGB(10, 100, 50)
 })
-var crosshair = new ex.Label({
-  text: '⊕',
-  x: game.canvasWidth / 2,
-  y: game.canvasHeight / 2,
-  fontSize: 150,
-  textAlign: ex.TextAlign.Center,
-  baseAlign: ex.BaseAlign.Middle
-})
+var crosshair = new Crosshair(150, game.canvasWidth / 2, game.canvasHeight / 2)
 
 game.add(crosshair);
 game.canvas.style.cursor = 'none'
