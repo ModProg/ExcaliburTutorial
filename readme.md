@@ -19,11 +19,11 @@ export class Crosshair extends ex.Label {
   constructor(size: number, x: number, y: number) {
     super({
       text: '⊕',
-      x: x,
-      y: y,
+      pos: new Vector(x, y),
       fontSize: size,
       textAlign: ex.TextAlign.Center,
-      baseAlign: ex.BaseAlign.Middle
+      baseAlign: ex.BaseAlign.Middle,
+      color: ex.Color.Red
     })
   }
 }
@@ -80,8 +80,139 @@ Das Terminal könnt ihr jederzeit mit dem `x` in der Ecke verstecken.
 
 ## Mehr UI
 
-Im Folgenden werden wir weitere UI Elemente hinzufügen.
+Im Folgenden werden wir noch zwei weitere UI Elemente hinzufügen.
 
 ### Punkteanzeige
 
 In `ui.ts` fügen wir eine zweite Klasse hinzu, `PointDisplay`:
+
+```typescript
+export class PointDisplay extends ex.Label {
+  value = 0
+  name = ""
+  constructor(name: string, startingValue: number, size: number, x: number, y: number) {
+    super({
+      text: name + startingValue,
+      pos: new Vector(x, y),
+      fontSize: size
+    })
+    this.value = startingValue
+    this.name = name
+  }
+}
+```
+`export` steht dabei für eine Klasse, die öffentlich ist, vergleichbar mit `public` in z. B. Java, ohne `export` könnten wir die Klassen nur in `ui.ts` benutzen, nicht aber in `index.ts`.
+
+Mit `value = 0` und `name = ""` erzeugen wir neuee Eigenschaft von PointDisplay, die wir dann verändern, und lesen können. Im Konstruktor setzen wir sie auf den Wert der Parameter `startingValue` bzw. `name`.
+
+Damit der Punktestand hochgezählt werden kann fügen wir die Methode `addPoints(points)` hinzu:
+
+```typescript
+public addPoints(points: number) {
+
+}
+```
+Um zum einen die Anzeige zu aktualliesiern und zum andreren value hochzuzählen brauchen wir jetzt nur zwei Zeilen:
+
+```typescript
+public addPoints(points: number) {
+  // Addiert points zu value
+  this.value += points
+  // Setzt den angezeigten Text auf name value
+  this.text = this.name + this.value
+}
+```
+
+Die vollständige Klasse ist dann:
+
+```typescript
+export class PointDisplay extends ex.Label {
+  value = 0
+  name = ""
+
+  constructor(name: string, startingValue: number, size: number, x: number, y: number) {
+    super({
+      text: name + startingValue,
+      pos: new Vector(x, y),
+      fontSize: size
+    })
+    this.value = startingValue
+    this.name = name
+  }
+
+  public addPoints(points: number) {
+    // Addiert points zu value
+    this.value += points
+    // Setzt den angezeigten Text auf name value
+    this.text = this.name + this.value
+  }
+}
+```
+
+### Magazin Anzeige
+
+Die Magazinanzeige zeigt an, wie viele Schüsse noch übrig sind, dafür verwenden wir das `💣`-Symbol.
+
+Die Klasse wieder so ähnlich wie vorhin:
+
+```typescript
+export class MagazineDisplay extends ex.Label {
+  value = 0
+
+  constructor(startingValue: number, size: number, x: number, y: number) {
+    super({
+      text: "💣".repeat(startingValue),
+      pos: new Vector(x, y),
+      fontSize: size
+    })
+    this.value = startingValue
+  }
+
+  public addShells(shells: number) {
+    // Addiert points zu value
+    this.value += shells
+    this.text = "💣".repeat(this.value)
+  }
+}
+```
+`"💣".repeat(number)` wiederholt `💣` `number` oft, beispielsweise resultiert `"💣".repeat(8)` in `"💣💣💣💣💣💣💣💣"`.
+
+## Die Gegner
+
+Für die Gegner legen wir eine neue Datei an, `enemy.ts`. Die Klasse Enemy erbt nun direkt von Actor:
+
+```typescript
+import * as ex from 'excalibur'
+export class Enemy extends ex.Actor {
+    
+    constructor(x: number, y: number) {
+        super({
+            x: x - 20,
+            y: y - 20,
+            width: 40,
+            height: 40,
+            color: ex.Color.Blue
+        })
+    }
+}
+```
+
+## Die Scene
+
+In der `index.ts` fügen wir zuerst die beiden UI-Elemente hinzu:
+
+```typescript
+var magazine = new MagazineDisplay(5,50,game.canvasWidth-10,70)
+// Das Magazin ist rechtsbündig
+magazine.textAlign=ex.TextAlign.Right
+game.add(magazine)
+```
+In der `game.input.pointers.primary.on('down', ...)` Funktion löschen wir alles und schreiben stattdessen:
+
+```typescript
+game.input.pointers.primary.on('down', function (evt) {
+  magazine.addShells(-1)
+})
+```
+
+Wenn wir jetzt klicken verschwinden oben rechts die Patronen.
