@@ -1,5 +1,5 @@
 import * as ex from 'excalibur';
-import { Crosshair } from './ui';
+import { Crosshair, PointDisplay, MagazineDisplay } from './ui';
 var game = new ex.Engine({
   // Stellt den Darstellungsmodus auf Fullscreen
   displayMode: ex.DisplayMode.FullScreen,
@@ -12,15 +12,21 @@ game.canvas.style.cursor = 'none'
 game.input.pointers.primary.on('move', function (evt) {
   crosshair.pos = evt.target.lastWorldPos
 })
+
+var points = new PointDisplay("Punkte:", 0, 50, 10, 70)
+game.add(points)
+
+var magazine = new MagazineDisplay(5,50,game.canvasWidth-10,70)
+// Das Magazin ist rechtsbündig
+magazine.textAlign=ex.TextAlign.Right
+game.add(magazine)
+
+
+
+
+
 game.input.pointers.primary.on('down', function (evt) {
-  game.add(new ex.Actor({
-    x: evt.target.lastWorldPos.x,
-    //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
-    y: evt.target.lastWorldPos.y - 15,
-    width: 50,
-    height: 50,
-    color: ex.Color.White
-  }))
+  magazine.addShells(-1)
 })
 // Starten der Engine
 game.start()
