@@ -19,16 +19,22 @@ export class Crosshair extends ex.Label {
   constructor(size: number, x: number, y: number) {
     super({
       text: '⊕',
-      pos: new ex.Vector(x, y),
+      pos: new Vector(x, y),
       fontSize: size,
       textAlign: ex.TextAlign.Center,
       baseAlign: ex.BaseAlign.Middle,
       color: ex.Color.Red
     })
+
+    this.onInitialize=()=>{
+      this.setZIndex(5)
+    }
   }
 }
 ```
 Den `super`-Konstruktor führen wir mit den Parametern unseres `new ex.Label(...)` Aufrufs von letztem Mal aus und erzeugen so das gleiche Symbol, nur die neuen Parameter `size`, `x` und `y` übergeben wir jetzt.
+
+Außerdem setzen wir, `onInitialize` also wenn es initializiert wird, den Z-Index, also wie weit oben es gerendert wird auf 5, damit es auf jeden fall über und nicht unter den Gegnern angezeigt wird.
 
 In der `index.ts` ersetzen wir den Aufruf 
 
@@ -93,7 +99,7 @@ export class PointDisplay extends ex.Label {
   constructor(name: string, startingValue: number, size: number, x: number, y: number) {
     super({
       text: name + startingValue,
-      pos: new ex.Vector(x, y),
+      pos: new Vector(x, y),
       fontSize: size
     })
     this.value = startingValue
@@ -103,7 +109,7 @@ export class PointDisplay extends ex.Label {
 ```
 `export` steht dabei für eine Klasse, die öffentlich ist, vergleichbar mit `public` in z. B. Java, ohne `export` könnten wir die Klassen nur in `ui.ts` benutzen, nicht aber in `index.ts`.
 
-Mit `value = 0` und `name = ""` erzeugen wir neuee Eigenschaft von PointDisplay, die wir dann verändern, und lesen können. Im Konstruktor setzen wir sie auf den Wert der Parameter `startingValue` bzw. `name`.
+Mit `value = 0` und `name = ""` erzeugen wir neue Eigenschaft von PointDisplay, die wir dann verändern, und lesen können. Im Konstruktor setzen wir sie auf den Wert der Parameter `startingValue` bzw. `name`.
 
 Damit der Punktestand hochgezählt werden kann fügen wir die Methode `addPoints(points)` hinzu:
 
@@ -133,7 +139,7 @@ export class PointDisplay extends ex.Label {
   constructor(name: string, startingValue: number, size: number, x: number, y: number) {
     super({
       text: name + startingValue,
-      pos: new ex.Vector(x, y),
+      pos: new Vector(x, y),
       fontSize: size
     })
     this.value = startingValue
@@ -162,7 +168,7 @@ export class MagazineDisplay extends ex.Label {
   constructor(startingValue: number, size: number, x: number, y: number) {
     super({
       text: "💣".repeat(startingValue),
-      pos: new ex.Vector(x, y),
+      pos: new Vector(x, y),
       fontSize: size
     })
     this.value = startingValue
@@ -187,10 +193,9 @@ export class Enemy extends ex.Actor {
     
     constructor(x: number, y: number) {
         super({
-            x: x - 20,
-            y: y - 20,
-            width: 40,
-            height: 40,
+            pos: new Vector(x - 40, y - 40),
+            width: 80,
+            height: 80,
             color: ex.Color.Blue
         })
     }
@@ -207,6 +212,11 @@ var magazine = new MagazineDisplay(5,50,game.canvasWidth-10,70)
 magazine.textAlign=ex.TextAlign.Right
 game.add(magazine)
 ```
+Oben müssen wir die `import` Anweisung erweitern:
+```typescript
+import { Crosshair, PointDisplay, MagazineDisplay } from './ui';
+```
+
 In der `game.input.pointers.primary.on('down', ...)` Funktion löschen wir alles und schreiben stattdessen:
 
 ```typescript
@@ -216,3 +226,47 @@ game.input.pointers.primary.on('down', function (evt) {
 ```
 
 Wenn wir jetzt klicken verschwinden oben rechts die Patronen.
+
+Nun fügen wir einen der Gegner ein, wenn wir ihn Treffen, bekommen wir 5 Punkte.
+
+```typescript
+var enemy = new Enemy(game.canvasWidth / 2, game.canvasHeight / 2)
+game.add(enemy)
+```
+Hier brauchen wir auch wieder die `import` Anweisung:
+
+```typescript
+import { Enemy } from './enemy';
+```
+Für die Punkte bei klicken mit der Maus:
+
+```typescript
+enemy.on("pointerdown", evt => {
+  points.addPoints(5)
+  // Entfernt den Gegner
+  enemy.kill()
+})
+```
+
+Einen zweiten Gegner können wir auch hinzufügen:
+
+```typescript
+var enemy2 = new Enemy(game.canvasWidth / 2+100, game.canvasHeight / 2)
+game.add(enemy2)
+
+enemy2.on("pointerdown", evt => {
+  points.addPoints(5)
+  // Entfernt den Gegner
+  enemy2.kill()
+})
+```
+
+Wenn die Patronen alle sind, können wir einfach das Spiel neustarten, dafür fügen wir bei unsererem Eventhandler für die normalen Mausklicks hinzu:
+
+```typescript
+game.input.pointers.primary.on('down', function (evt) {
+  magazine.addShells(-1)
+  if(magazine.value<=0)
+    location.reload()
+})
+```
