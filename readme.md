@@ -109,7 +109,7 @@ export class PointDisplay extends ex.Label {
 ```
 `export` steht dabei für eine Klasse, die öffentlich ist, vergleichbar mit `public` in z. B. Java, ohne `export` könnten wir die Klassen nur in `ui.ts` benutzen, nicht aber in `index.ts`.
 
-Mit `value = 0` und `name = ""` erzeugen wir neuee Eigenschaft von PointDisplay, die wir dann verändern, und lesen können. Im Konstruktor setzen wir sie auf den Wert der Parameter `startingValue` bzw. `name`.
+Mit `value = 0` und `name = ""` erzeugen wir neue Eigenschaft von PointDisplay, die wir dann verändern, und lesen können. Im Konstruktor setzen wir sie auf den Wert der Parameter `startingValue` bzw. `name`.
 
 Damit der Punktestand hochgezählt werden kann fügen wir die Methode `addPoints(points)` hinzu:
 
@@ -212,6 +212,11 @@ var magazine = new MagazineDisplay(5,50,game.canvasWidth-10,70)
 magazine.textAlign=ex.TextAlign.Right
 game.add(magazine)
 ```
+Oben müssen wir die `import` Anweisung erweitern:
+```typescript
+import { Crosshair, PointDisplay, MagazineDisplay } from './ui';
+```
+
 In der `game.input.pointers.primary.on('down', ...)` Funktion löschen wir alles und schreiben stattdessen:
 
 ```typescript
@@ -222,13 +227,17 @@ game.input.pointers.primary.on('down', function (evt) {
 
 Wenn wir jetzt klicken verschwinden oben rechts die Patronen.
 
-Nun fügen wir einen der Gegner ein, wenn wir einen Treffen, bekommen wir 5 Punkte.
+Nun fügen wir einen der Gegner ein, wenn wir ihn Treffen, bekommen wir 5 Punkte.
 
 ```typescript
 var enemy = new Enemy(game.canvasWidth / 2, game.canvasHeight / 2)
 game.add(enemy)
 ```
+Hier brauchen wir auch wieder die `import` Anweisung:
 
+```typescript
+import { Enemy } from './enemy';
+```
 Für die Punkte bei klicken mit der Maus:
 
 ```typescript
