@@ -1,6 +1,6 @@
 # Es lebt
 
-Moin Kinn’ers, nachdem wir letztes Mal ein „Hello World“ geschrieben haben, wollen wir das ganze interaktiver machen.
+Moin Kinn’ers, nachdem wir letztes Mal ein „Hello World“ geschrieben haben, wollen wir das ganze interaktiver machen. Ihr könnt entweder mit eurem Projekt vom letzten Mal arbeiten oder die [„Musterlösung“](https://github.com/ModProg/ExcaliburTutorial/releases/tag/1) herunterladen.
 
 ## Mausbewegung
 
