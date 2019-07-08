@@ -117,3 +117,5 @@ statt
 ```typescript
 game.backgroundColor = ex.Color.fromRGB(0, 150, 100);
 ```
+
+Bisher ist ja alles in einer Datei und eher „prozedural“ im nächsten Teil wollen wir das ganze etwas übersichtlicher machen indem wir Klassen anlegen.
