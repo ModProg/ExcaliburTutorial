@@ -25,10 +25,16 @@ export class Crosshair extends ex.Label {
       baseAlign: ex.BaseAlign.Middle,
       color: ex.Color.Red
     })
+
+    this.onInitialize=()=>{
+      this.setZIndex(5)
+    }
   }
 }
 ```
 Den `super`-Konstruktor führen wir mit den Parametern unseres `new ex.Label(...)` Aufrufs von letztem Mal aus und erzeugen so das gleiche Symbol, nur die neuen Parameter `size`, `x` und `y` übergeben wir jetzt.
+
+Außerdem setzen wir, `onInitialize` also wenn es initializiert wird, den Z-Index, also wie weit oben es gerendert wird auf 5, damit es auf jeden fall über und nicht unter den Gegnern angezeigt wird.
 
 In der `index.ts` ersetzen wir den Aufruf 
 
@@ -187,10 +193,9 @@ export class Enemy extends ex.Actor {
     
     constructor(x: number, y: number) {
         super({
-            x: x - 20,
-            y: y - 20,
-            width: 40,
-            height: 40,
+            pos: new Vector(x - 40, y - 40),
+            width: 80,
+            height: 80,
             color: ex.Color.Blue
         })
     }
@@ -216,3 +221,43 @@ game.input.pointers.primary.on('down', function (evt) {
 ```
 
 Wenn wir jetzt klicken verschwinden oben rechts die Patronen.
+
+Nun fügen wir einen der Gegner ein, wenn wir einen Treffen, bekommen wir 5 Punkte.
+
+```typescript
+var enemy = new Enemy(game.canvasWidth / 2, game.canvasHeight / 2)
+game.add(enemy)
+```
+
+Für die Punkte bei klicken mit der Maus:
+
+```typescript
+enemy.on("pointerdown", evt => {
+  points.addPoints(5)
+  // Entfernt den Gegner
+  enemy.kill()
+})
+```
+
+Einen zweiten Gegner können wir auch hinzufügen:
+
+```typescript
+var enemy2 = new Enemy(game.canvasWidth / 2+100, game.canvasHeight / 2)
+game.add(enemy2)
+
+enemy2.on("pointerdown", evt => {
+  points.addPoints(5)
+  // Entfernt den Gegner
+  enemy2.kill()
+})
+```
+
+Wenn die Patronen alle sind, können wir einfach das Spiel neustarten, dafür fügen wir bei unsererem Eventhandler für die normalen Mausklicks hinzu:
+
+```typescript
+game.input.pointers.primary.on('down', function (evt) {
+  magazine.addShells(-1)
+  if(magazine.value<=0)
+    location.reload()
+})
+```

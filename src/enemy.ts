@@ -4,10 +4,11 @@ export class Enemy extends ex.Actor {
 
     constructor(x: number, y: number) {
         super({
-            pos: new Vector(x - 20, y - 20),
-            width: 40,
-            height: 40,
-            color: ex.Color.Blue
+            pos: new Vector(x - 40, y - 40),
+            width: 80,
+            height: 80,
+            color: ex.Color.Blue,
+            
         })
     }
 }

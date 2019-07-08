@@ -10,6 +10,10 @@ export class Crosshair extends ex.Label {
       baseAlign: ex.BaseAlign.Middle,
       color: ex.Color.Red
     })
+    this.onInitialize=()=>{
+      this.setZIndex(5)
+
+    }
   }
 }
 
