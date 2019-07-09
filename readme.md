@@ -1,6 +1,6 @@
 # Einrichten
 
-Moin Kinner’s, wir nutzen jetzt Excalibur mir TypeScript und WebPack.
+Moin Kinner’s, wir nutzen jetzt [Excalibur](https://excaliburjs.com/) mir TypeScript und WebPack.
 
 ## Downloads
 
