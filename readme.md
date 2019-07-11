@@ -1,6 +1,6 @@
 # Klassen
 
-Moin Kinn’ers, nachdem wir bisher alles in der `index.ts` Datei implementiert haben, werden wir diesmal etwas aufräumen und einige Dinge in andere Klassen auslagern. Ihr könnt entweder mit eurem Projekt vom letzten Mal arbeiten oder die [„Musterlösung“](https://github.com/ModProg/ExcaliburTutorial/releases/tag/2) herunterladen.
+Moin Kinn’ers, nachdem wir bisher alles in der `index.ts` Datei implementiert haben, werden wir diesmal etwas aufräumen und einige Dinge in andere Klassen auslagern.
 
 ## Fadenkreuz
 
