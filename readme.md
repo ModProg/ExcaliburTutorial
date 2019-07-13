@@ -56,9 +56,7 @@ Immer dann, wenn die Maus gedrückt wird, soll eine Box erzeugt werden an der St
 ```typescript
 game.input.pointers.primary.on('down', function (evt) {
   game.add(new ex.Actor({
-    pos: new Vector(evt.target.lastWorldPos.x,
-      //-10 um die Box ein Stück hochzubewegen, damit sie besser passt
-      evt.target.lastWorldPos.y - 10),
+    pos: evt.target.lastWorldPos,
     width: 50,
     height: 50,
     color: ex.Color.White
@@ -70,9 +68,7 @@ Hier haben wir eine andere Möglichkeit genutzt die Parameter zu übergeben, and
 
 ```typescript
 {
-  pos: new Vector(evt.target.lastWorldPos.x,
-    //-15 um die Box ein Stück hochzubewegen, damit sie besser passt
-    evt.target.lastWorldPos.y - 15),
+  pos:  evt.target.lastWorldPos,
   width: 50,
   height: 50,
   color: ex.Color.White
@@ -101,7 +97,7 @@ var crosshair = new ex.Label({
 })
 ```
 
-Wobei ich `helloWorld` zu `crosshair` umbenannt habe, in VSCode könnt ihr das über die Taste `F2` machen, wenn das nicht funktioniert müsst ihr händisch alle `helloWorld` zu `crosshair` ändern.
+Wobei ich `helloWorld` zu `crosshair` umbenannt habe, in VSCode könnt ihr das über die Taste `F2` machen, wenn das nicht funktioniert müsst ihr händisch oder mit `Strg+F` (Finden und Ersetzen) alle `helloWorld` zu `crosshair` ändern.
 
 Nach dem gleichen Vorgehen, können wir auch das setzen der Hintergrundfarbe verschieben:
 
