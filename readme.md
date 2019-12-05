@@ -19,7 +19,7 @@ export class Crosshair extends ex.Label {
   constructor(size: number, x: number, y: number) {
     super({
       text: '⊕',
-      pos: new Vector(x, y),
+      pos: new ex.Vector(x, y),
       fontSize: size,
       textAlign: ex.TextAlign.Center,
       baseAlign: ex.BaseAlign.Middle,
@@ -99,7 +99,7 @@ export class PointDisplay extends ex.Label {
   constructor(name: string, startingValue: number, size: number, x: number, y: number) {
     super({
       text: name + startingValue,
-      pos: new Vector(x, y),
+      pos: new ex.Vector(x, y),
       fontSize: size
     })
     this.value = startingValue
@@ -139,7 +139,7 @@ export class PointDisplay extends ex.Label {
   constructor(name: string, startingValue: number, size: number, x: number, y: number) {
     super({
       text: name + startingValue,
-      pos: new Vector(x, y),
+      pos: new ex.Vector(x, y),
       fontSize: size
     })
     this.value = startingValue
@@ -168,7 +168,7 @@ export class MagazineDisplay extends ex.Label {
   constructor(startingValue: number, size: number, x: number, y: number) {
     super({
       text: "💣".repeat(startingValue),
-      pos: new Vector(x, y),
+      pos: new ex.Vector(x, y),
       fontSize: size
     })
     this.value = startingValue
@@ -193,7 +193,7 @@ export class Enemy extends ex.Actor {
     
     constructor(x: number, y: number) {
         super({
-            pos: new Vector(x - 40, y - 40),
+            pos: new ex.Vector(x - 40, y - 40),
             width: 80,
             height: 80,
             color: ex.Color.Blue
