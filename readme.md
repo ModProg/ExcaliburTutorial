@@ -261,7 +261,7 @@ enemy2.on("pointerdown", evt => {
 })
 ```
 
-Wenn die Patronen alle sind, können wir einfach das Spiel neustarten, dafür fügen wir bei unserem Eventhandler für die normalen Mausklicks hinzu:
+Wenn die Patronen alle sind, können wir einfach das Spiel neustarten, dazu fügen wir bei unserem Eventhandler für die normalen Mausklicks hinzu:
 
 ```typescript
 game.input.pointers.primary.on('down', function (evt) {
