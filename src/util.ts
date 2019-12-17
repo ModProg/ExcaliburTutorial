@@ -3,7 +3,7 @@ import * as ex from 'excalibur';
 export const cbs = [];
 export const loader = new ex.Loader();
 export function loadTexture(path: string, cb?: (tex: ex.Texture) => any): ex.Texture {
-    let tex = new ex.Texture("./res/" + path);
+    let tex = new ex.Texture("assets/" + path);
     loader.addResource(tex);
     console.log(tex)
     if (cb)
@@ -22,7 +22,7 @@ export class Rect {
         this.y1 = y1 < y2 ? y1 : y2;
         this.y2 = y2 > y1 ? y2 : y1;
     }
-    get w() { return this.x1 - this.x2; }
+    get w() { return this.x2 - this.x1; }
     set w(v: number) {
         let x = this.x;
         this.x1 = x - v / 2;
