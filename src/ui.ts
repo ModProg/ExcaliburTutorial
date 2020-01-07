@@ -1,6 +1,6 @@
 import * as ex from 'excalibur'
 import { Vector } from 'excalibur'
-import { loadTexture, playingField } from './util'
+import { SpriteFonts } from './resources'
 
 
 export class PointDisplay extends ex.Label {
@@ -25,12 +25,6 @@ export class PointDisplay extends ex.Label {
   }
 }
 
-var font: ex.SpriteFont
-loadTexture("parachute.png", (tex) => {
-  console.log(tex)
-  font = new ex.SpriteFont(tex, 'a', false, 1, 1, 200, 348)
-  console.log("font", font)
-})
 
 export class MagazineDisplay extends ex.Label {
   value = 0
@@ -42,11 +36,8 @@ export class MagazineDisplay extends ex.Label {
       fontSize: size
     })
     this.value = startingValue
+    this.spriteFont = SpriteFonts.Parachute;
   }
-  onInitialize() {
-    this.spriteFont = font
-  }
-
 
   public addShells(shells: number) {
     // Addiert points zu value
@@ -54,4 +45,3 @@ export class MagazineDisplay extends ex.Label {
     this.text = "a".repeat(this.value)
   }
 }
-

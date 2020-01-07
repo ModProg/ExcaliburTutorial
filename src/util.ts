@@ -1,16 +1,5 @@
 import * as ex from 'excalibur';
 
-export const cbs = [];
-export const loader = new ex.Loader();
-export function loadTexture(path: string, cb?: (tex: ex.Texture) => any): ex.Texture {
-    let tex = new ex.Texture("assets/" + path);
-    loader.addResource(tex);
-    console.log(tex)
-    if (cb)
-        cbs.push([cb, tex]);
-    return tex;
-}
-
 export class Rect {
     x1 = 0;
     x2 = 0;
