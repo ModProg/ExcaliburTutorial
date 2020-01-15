@@ -8,6 +8,6 @@ Einen Teil der Grafiken habe ich mit [Krita](https://link) selber erstellt (sieh
 
 |   |   |   |
 |---|---|---|
-|Boxchute|![alt](/src/images/boxchute.png)|[FreeSVG](https://freesvg.org/color-illustration-of-landing-wooden-box-chute)|
+|Boxchute|![alt](/src/images/boxchute.png =100x)|[FreeSVG](https://freesvg.org/color-illustration-of-landing-wooden-box-chute)|
 |   |   |   |
 |   |   |   |
