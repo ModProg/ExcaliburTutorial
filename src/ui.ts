@@ -1,5 +1,4 @@
 import * as ex from 'excalibur'
-import { Vector } from 'excalibur'
 import { SpriteFonts } from './resources'
 
 
@@ -10,7 +9,7 @@ export class PointDisplay extends ex.Label {
   constructor(name: string, startingValue: number, size: number, x: number, y: number) {
     super({
       text: name + startingValue,
-      pos: new Vector(x, y),
+      pos: new ex.Vector(x, y),
       fontSize: size
     })
     this.value = startingValue
@@ -32,7 +31,7 @@ export class MagazineDisplay extends ex.Label {
   constructor(startingValue: number, size: number, x: number, y: number) {
     super({
       text: "a".repeat(startingValue),
-      pos: new Vector(x, y),
+      pos: new ex.Vector(x, y),
       fontSize: size
     })
     this.value = startingValue

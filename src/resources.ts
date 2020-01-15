@@ -22,7 +22,7 @@ export const Textures: { [key: string]: Texture } = {
 
 }
 
-export const SpriteFonts: { [key: string]: ex.SpriteFont } = { } 
+export const SpriteFonts: { [key: string]: ex.SpriteFont } = {}
 
 export function Loader() {
     let loader = new ex.Loader(Object.values(Textures))
@@ -30,4 +30,10 @@ export function Loader() {
         font("Parachute");
     }
     return loader;
+}
+
+export const CollisionGroups = {
+
+    back: ex.CollisionGroupManager.create("back"),
+    front: ex.CollisionGroupManager.create("front")
 }
