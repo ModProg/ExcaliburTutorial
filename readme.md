@@ -189,3 +189,27 @@ game.start(Loader()).then(main)
 Wodurch beim Starten des Spieles `Loader` aus der `resources.ts` ausgeführt wird, und anschließend (`then`) unsere `main`-Funktion. 
 
 Jetzt können wir endlich auch unser `Textures` und `SpriteFonts` verwenden.
+
+Dafür ändern wir bei unsrem `MagazineDisplay` `"💣"` zu `"a"` und fügen im `constructor` die Zeile `this.spriteFont = SpriteFonts.Parachute` hinzu, sodass wir:
+
+```ts
+export class MagazineDisplay extends ex.Label {
+    value = 0
+
+    constructor(startingValue: number, size: number, x: number, y: number) {
+        super({
+            text: "a".repeat(startingValue),
+            pos: new ex.Vector(x, y),
+            fontSize: size
+        })
+        this.value = startingValue
+        this.spriteFont = SpriteFonts.Parachute
+    }
+
+    public addShells(shells: number) {
+        this.value += shells
+        this.text = "a".repeat(this.value)
+    }
+}
+```
+bekommen, anschließend müssen wir nur noch die `import`s hinzufügen und unser Spiel hat die ersten Texturen.
