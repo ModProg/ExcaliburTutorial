@@ -4,7 +4,8 @@ Moin Kinn’ers, dies wird etwas länger, diesmal fügen wir einerseits Bilder h
 
 ## Bilder
 
-Einen Teil der Grafiken habe ich mit [Krita](https://link) selber erstellt (siehe [YouTube-Video](https://www.youtube.com/watch?v=z5iDlPdYS2k)), beim Rest habe ich hier die Originale verlinkt, die angepassten Versionen findet ihr im Code-Download.
+Einen Teil der Grafiken habe ich mit [Krita](https://link) selber erstellt (siehe [YouTube-Video](https://www.youtube.com/watch?v=z5iDlPdYS2k)), beim Rest habe ich hier die Originale verlinkt, die angepassten Versionen findet ihr im Code-Download oder [hier](https://github.com/ModProg/ExcaliburTutorial/releases/download/2.5/images.zip).
+
 |                         Bild                         | Beschreibung                 |                                                  Original                                                  |
 | :--------------------------------------------------: | ---------------------------- | :--------------------------------------------------------------------------------------------------------: |
 | <img src="/src/images/boxchute.png" height="100" />  | Boxchute (etwas gedreht)     |               [FreeSVG](https://freesvg.org/color-illustration-of-landing-wooden-box-chute)                |
