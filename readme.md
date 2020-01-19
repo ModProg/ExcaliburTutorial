@@ -28,18 +28,18 @@ erhaltet führt ihr einfach `npm audit fix` aus, und behebt so zumindest die not
 
 Die Bilder, die wir erstellt, oder heruntergeladen haben, packen wir in den neuen Ordner `/src/images`. Damit wir jetzt aber auf diese auch zugreifen können, müssen wir die `webpack.config.js` anpassen.
 
-Als erstes fügen wir oben in der Datei eine neue Konstante hinzu `const CopyWebpackPlugin = require('copy-webpack-plugin');`. Anschließend, ziemlich weit unten fügen wir im Bereich `plugins: [...]` einen neuen Eintrag `new CopyWebpackPlugin([{ from: 'src/images', to: 'images' }]),` ein.
+Als erstes fügen wir oben in der Datei eine neue Konstante hinzu `const CopyWebpackPlugin = require('copy-webpack-plugin')`. Anschließend, ziemlich weit unten fügen wir im Bereich `plugins: [...]` einen neuen Eintrag `new CopyWebpackPlugin([{ from: 'src/images', to: 'images' }]),` ein.
 
 Die fertige Datei sollte dann in etwa so aus sehen: 
 ```js
-const path = require('path');
-const webpack = require('webpack');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HtmlWebPackPlugin = require('html-webpack-plugin');
-const webpackMerge = require("webpack-merge");
+const path = require('path')
+const webpack = require('webpack')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebPackPlugin = require('html-webpack-plugin')
+const webpackMerge = require("webpack-merge")
 
-const modeConfig = env => require(`./build-utils/webpack.${env}`)(env);
+const modeConfig = env => require(`./build-utils/webpack.${env}`)(env)
 
 module.exports = ({ mode, presets } = { mode: "production", presets: [] }) => {
   return webpackMerge({
@@ -55,17 +55,13 @@ module.exports = ({ mode, presets } = { mode: "production", presets: [] }) => {
     ]
   },
     modeConfig(mode)
-  );
-};
+  )
+}
 ```
 
 Anschließend installieren wir noch das `copy-webpack-plugin` über NPM mit `npm install --save-dev copy-webpack-plugin`.
 
 ### Resources
-Beim Schreiben des Tutorials musste ich an dieser Stelle erstmal einiges ausprobieren, bis alles lief. Diesen Part überspringen wir mal lieber, ich denke es ist so schon lang genug.
-
-> Wir haben jetzt noch etwa 400 Zeilen Code in diesem Tutorial vor uns (nur geschätzt, ich habe das nicht nachgezählt). Schaffen wir aber denke ich trotzdem.
-
 Um unsere Resourcen wie Grafiken oder Schriftarten zu verwalten, erstellen wir eine Datei namens `resources.ts`. Um Excalibur zu verwenden, importieren wir dieses wieder als `ex` mit `import * as ex from "excalibur"`.
 
 Hier schreiben wir dann zuerst eine kleine Hilfsfunktion zum Laden von Texturen:
@@ -126,6 +122,70 @@ export function Loader() {
   return loader
 }
 ```
-
+### index.ts
 Das beste System, Texturen zu laden, bringt uns natürlich wenig, wenn wir es nicht aufrufen. Dafür passen wir unsere `index.ts` an. 
 
+Zuerst löschen wir den Code für unser Fadenkreuz:
+```js
+var crosshair = new Crosshair(150, game.canvasWidth / 2, game.canvasHeight / 2)
+game.canvas.style.cursor = 'none'
+game.input.pointers.primary.on('move', function (evt) {
+  crosshair.pos = evt.target.lastWorldPos
+})
+```
+und
+```js
+game.add(crosshair)
+```
+Und ersetzen ihn mit
+```js
+game.canvas.style.cursor = 'url(images/crosshair.png) 64 64, crosshair'
+```
+Das benutzt zwar nicht unsere `resources.ts` ist aber ein guter Test um zu überprüfen ob wir Webpack richtig konfiguriert haben.
+Der Code im String ist dabei [CSS](https://developer.mozilla.org/de/docs/Web/CSS), mit ihm geben wir optionen für das aussehen des Cursers an. 
+[Standard Optionen](https://developer.mozilla.org/de/docs/Web/CSS/cursor) sind da z.B. `wait` oder `move`, aber man kann mit `url(image_path)` auch ein eigenes Bild festlegen die Limitierungen stehen auf [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Basic_User_Interface/Using_URL_values_for_the_cursor_property), wobei 64 die Breite und Höhe ist. 
+Mit `crosshair` legen wir fest, was passieren soll, wenn aus irgendeinem Grund unser Bild nicht genutzt werden kann.
+
+Um jetzt z.B. unsere Schriftart benutzen zu können, müssen wir sicherstellen, das zuerst die Bilder geladen sind. Dafür packen wir alles in unserer `index.ts` außer der letzten Zeile:
+```js
+// Starten der Engine
+game.start()
+```
+und dem Anfang:
+```js
+import * as ex from 'excalibur'
+import { Crosshair, MagazineDisplay, PointDisplay } from './ui'
+import { Enemy } from './enemy'
+var game = new ex.Engine({
+  // Stellt den Darstellungsmodus auf Fullscreen
+  displayMode: ex.DisplayMode.FullScreen,
+  backgroundColor: ex.Color.fromRGB(10, 100, 50)
+})
+```
+in eine neue Funktion, `main`:
+
+```js
+
+function main() {
+  game.canvas.style.cursor = 'url(images/crosshair.png) 64 64, crosshair'
+  .
+  .
+  .
+  var enemy2 = new Enemy(game.canvasWidth / 2 + 100, game.canvasHeight / 2)
+  game.add(enemy2)
+  enemy2.on("pointerdown", evt => {
+    points.addPoints(5)
+    enemy2.kill()
+  })
+}
+```
+Anschließend, können wir unseren `game.start()` Aufruf in der letzten Zeile ändern zu:
+```js
+// importieren von Loader mit 
+// import { Loader } from './resources'
+// nicht vergessen.
+game.start(Loader()).then(main)
+```
+Wodurch beim Starten des Spieles `Loader` aus der `resources.ts` ausgeführt wird, und anschließend (`then`) unsere `main`-Funktion. 
+
+Jetzt können wir endlich auch unser `Textures` und `SpriteFonts` verwenden.

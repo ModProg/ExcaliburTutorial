@@ -1,10 +1,11 @@
-const path = require('path');
-const webpack = require('webpack');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const HtmlWebPackPlugin = require('html-webpack-plugin');
-const webpackMerge = require("webpack-merge");
+const path = require('path')
+const webpack = require('webpack')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const HtmlWebPackPlugin = require('html-webpack-plugin')
+const webpackMerge = require("webpack-merge")
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-const modeConfig = env => require(`./build-utils/webpack.${env}`)(env);
+const modeConfig = env => require(`./build-utils/webpack.${env}`)(env)
 
 module.exports = ({ mode, presets } = { mode: "production", presets: [] }) => {
   return webpackMerge({
@@ -54,9 +55,10 @@ module.exports = ({ mode, presets } = { mode: "production", presets: [] }) => {
       new CleanWebpackPlugin({}),
       new HtmlWebPackPlugin({
         title: 'Excalibur Webpack Sample'
-      })
+      }),
+      new CopyWebpackPlugin([{ from: 'src/images', to: 'images' }]),
     ]
   },
   modeConfig(mode)
-  );
-};
+  )
+}

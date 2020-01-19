@@ -1,4 +1,5 @@
-import * as ex from 'excalibur';
+import * as ex from 'excalibur'
+import { SpriteFonts } from './resources'
 
 export class Crosshair extends ex.Label {
     constructor(size: number, x: number, y: number) {
@@ -25,12 +26,12 @@ export class PointDisplay extends ex.Label {
             pos: new ex.Vector(x, y),
             fontSize: size
         })
-        this.value = startingValue;
-        this.name = name;
+        this.value = startingValue
+        this.name = name
     }
 
     public addPoints(points: number) {
-        this.value += points;
+        this.value += points
         this.text = this.name + this.value
     }
 }
@@ -40,15 +41,16 @@ export class MagazineDisplay extends ex.Label {
 
     constructor(startingValue: number, size: number, x: number, y: number) {
         super({
-            text: "💣".repeat(startingValue),
+            text: "a".repeat(startingValue),
             pos: new ex.Vector(x, y),
             fontSize: size
         })
         this.value = startingValue
+        this.spriteFont = SpriteFonts.Parachute
     }
 
     public addShells(shells: number) {
         this.value += shells
-        this.text = "💣".repeat(this.value)
+        this.text = "a".repeat(this.value)
     }
 }
