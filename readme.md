@@ -1,216 +1,129 @@
-# Bilder und mehr
+# Let's Game
 
-Moin Kinn’ers, dies wird etwas länger, diesmal fügen wir einerseits Bilder hinzu, zum anderen bauen wir auch schon einen Teil der aufwändigeren Spiellogik. (Hier habe ich ca. 2 Wochen dran gesessen, weil ich den einen Fehler nicht gefunden hatte...)
+Moin Kinners nach Corona und Prüfungsstress... Zeit für ein bisschen Spiel:
 
-## Bilder
+## Aufräumen
 
-Einen Teil der Grafiken habe ich mit [Krita](https://link) selber erstellt (siehe [YouTube-Video](https://www.youtube.com/watch?v=z5iDlPdYS2k)), beim Rest habe ich hier die Originale verlinkt, die angepassten Versionen findet ihr im Code-Download oder [hier](https://github.com/ModProg/ExcaliburTutorial/releases/download/2.5/images.zip).
+Wir löschen als erstes `enemy.ts` , natürlich auch den Verweis in `index.ts` .
+Und die beiden `Enemy` 's in `index.ts` .
+Wenn wir jetzt das Spiel mit unserem Task starten, haben wir nur die Hud-Elemente.
 
-|                         Bild                         | Beschreibung                 |                                                  Original                                                  |
-| :--------------------------------------------------: | ---------------------------- | :--------------------------------------------------------------------------------------------------------: |
-| <img src="/src/images/boxchute.png" height="100" />  | Boxchute (etwas gedreht)     |               [FreeSVG](https://freesvg.org/color-illustration-of-landing-wooden-box-chute)                |
-| <img src="/src/images/parachute.png" height="100" /> | Fallschirm für Anzeige       |            [pixabay](https://pixabay.com/de/vectors/fallschirm-lieferungen-kiste-kamm-154198/)             | ma |
-| <img src="/src/images/crosshair.png" height="100" /> | Fadenkreuz (etwas angepasst) | [Needpix](https://www.needpix.com/photo/88180/crosshair-cross-wires-crossed-threads-crosslines-aim-target) |
-|   <img src="/src/images/truck.png" height="100" />   | Truck (schwarz umrandet)     |            [pixabay](https://pixabay.com/de/vectors/lkw-truck-auto-fahrzeug-transport-3625572/)            |
+## Utils
 
+Als nächstes bauen wir uns eine kleine Utility-Bibliothek, da dies zu lange dauerte hier zu erläutern verlinke ich sie nur. Die meisten Sachen habe ich in den Kommentaren erläutert.
 
-## NPM 
+## Objects
 
-Beim aufsetzen des Projekts, haben wir mit `npm install` die notwendigen Pakete heruntergeladen, inzwischen sind jedoch (zumindest bei mir) ein paar Updates aufgetaucht. Mit dem gleichen Befehl, können wir die einfach installieren. Wenn ihr als Rückmeldung etwas in der Art wie
-```
-found 7 vulnerabilities (3 moderate, 4 high)
-  run `npm audit fix` to fix them, or `npm audit` for details
-```
-erhaltet führt ihr einfach `npm audit fix` aus, und behebt so zumindest die notwendigen Updates, die automatisch ausgeführt werden können.
+Da wir mit der `enemy.ts` alle unsere interaktiven Elemente entfernt haben brauchen wir neue, wir fangen mit dem Boxchute an:
 
-## Code
+``` typescript
+export class Boxchute extends ex.Actor {
+    loc = 0
+    // Wenn der Boxchute niedriger ist kollidiert er
+    static collide_height = 12
 
-### Bilder
+    static max_scale = 1
+    static min_scale = 0.2
 
-Die Bilder, die wir erstellt, oder heruntergeladen haben, packen wir in den neuen Ordner `/src/images`. Damit wir jetzt aber auf diese auch zugreifen können, müssen wir die `webpack.config.js` anpassen.
+    static fallSpeed = 0.04
+    starting_height = 25
 
-Als erstes fügen wir oben in der Datei eine neue Konstante hinzu `const CopyWebpackPlugin = require('copy-webpack-plugin')`. Anschließend, ziemlich weit unten fügen wir im Bereich `plugins: [...]` einen neuen Eintrag `new CopyWebpackPlugin([{ from: 'src/images', to: 'images' }]),` ein.
-
-Die fertige Datei sollte dann in etwa so aus sehen: 
-```js
-const path = require('path')
-const webpack = require('webpack')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const HtmlWebPackPlugin = require('html-webpack-plugin')
-const webpackMerge = require("webpack-merge")
-
-const modeConfig = env => require(`./build-utils/webpack.${env}`)(env)
-
-module.exports = ({ mode, presets } = { mode: "production", presets: [] }) => {
-  return webpackMerge({
-    .
-    .
-    .
-    plugins: [
-      new CleanWebpackPlugin({}),
-      new CopyWebpackPlugin([{ from: 'src/images', to: 'images' }]),
-      new HtmlWebPackPlugin({
-        title: 'Excalibur Webpack Sample'
-      })
-    ]
-  },
-    modeConfig(mode)
-  )
-}
-```
-
-Anschließend installieren wir noch das `copy-webpack-plugin` über NPM mit `npm install --save-dev copy-webpack-plugin`.
-
-### Resources
-Um unsere Resourcen wie Grafiken oder Schriftarten zu verwalten, erstellen wir eine Datei namens `resources.ts`. Um Excalibur zu verwenden, importieren wir dieses wieder als `ex` mit `import * as ex from "excalibur"`.
-
-Hier schreiben wir dann zuerst eine kleine Hilfsfunktion zum Laden von Texturen:
-```js
-function tex(path: string) {
-  // Lädt eine Texture mit dem Namen `path`
-  return new ex.Texture("./images/" + path)
-}
-```
-Damit können wir uns dann sozusagen eine Ressourcen-Bibliothek bauen:
-```js
-export const Textures: { [key: string]: ex.Texture } = {}
-export const SpriteFonts: { [key: string]: ex.SpriteFont } = {}
-```
-`[key: string]: ex.Texture` legt dabei fest, das in `Textures`, zwar beliebige Einträge existieren dürfen, aber nur solche die eine Textur sind. Analog bei `SpriteFonts`.
-
-Mit der `tex` Funktion, können jetzt Texturen geladen werden:
-
-```js
-export const Textures: { [key: string]: ex.Texture } = {
-  Parachute: tex("parachute.png"),
-  Truck: tex("truck.png"),
-  Boxchute: tex("boxchute.png"),
-}
-```
-Die Funktion um Schriftarten zu erzeugen ist etwas aufwändiger, hat aber eigentlich auch nur mehr Parameter:
-```js
-function font(name: string | undefined, letters = "a",
-  caseSensitive = true, columns = 1, rows = 1,
-  texture: ex.Texture | undefined = undefined) {}
-```
-Die Werte hinter dem `=` bei `font(...)` sind so etwas wie Default-Werte. Das heißt, wir können diese beim Aufrufen auch weglassen. Nun müssen wir die Schriftart mit `new ex.SpriteFont` erzeugen:
-```js
-// Wenn texture nicht übergeben wurde, 
-// wird die Texture mit dem Namen `name` verwendet
-texture = texture || Textures[name]
-let font = new ex.SpriteFont(texture, letters,
-  !caseSensitive, columns, rows, texture.width,
-  texture.height)
-```
-Dafür übergeben wir einfach die Parameter, wobei wir `caseSensitive` invertieren müssen, da der Parameter von `SpriteFont`, `caseInsensitive` ist.
-Zur Rückgabe verwenden wir, wenn ein Name übergeben wird, unsere `SpriteFonts`-Bibliothek. Zusätzlich auch mit `return`:
-```js
-if (name)
-  SpriteFonts[name] = font
-return font
-```
-Jetzt brauchen wir noch eine Möglichkeit die Texturen zu laden, dafür erzeugen wir eine Funktion namens `Loader`:
-```js
-export function Loader() {
-  // Wir übergeben dem `Loader` die Texturen,
-  // `Object.values` erzeugt einen Array mit allen Werten von `Textures`
-  let loader = new ex.Loader(Object.values(Textures))
-  loader.oncomplete = () => {
-    // Die Schriftart können wir erst erzeugen, wenn die Texturen geladen sind.
-    font("Parachute")
-  }
-  return loader
-}
-```
-### index.ts
-Das beste System, Texturen zu laden, bringt uns natürlich wenig, wenn wir es nicht aufrufen. Dafür passen wir unsere `index.ts` an. 
-
-Zuerst löschen wir den Code für unser Fadenkreuz:
-```js
-var crosshair = new Crosshair(150, game.canvasWidth / 2, game.canvasHeight / 2)
-game.canvas.style.cursor = 'none'
-game.input.pointers.primary.on('move', function (evt) {
-  crosshair.pos = evt.target.lastWorldPos
-})
-```
-und
-```js
-game.add(crosshair)
-```
-Und ersetzen ihn mit
-```js
-game.canvas.style.cursor = 'url(images/crosshair.png) 64 64, crosshair'
-```
-Das benutzt zwar nicht unsere `resources.ts` ist aber ein guter Test um zu überprüfen ob wir Webpack richtig konfiguriert haben.
-Der Code im String ist dabei [CSS](https://developer.mozilla.org/de/docs/Web/CSS), mit ihm geben wir optionen für das aussehen des Cursers an. 
-[Standard Optionen](https://developer.mozilla.org/de/docs/Web/CSS/cursor) sind da z.B. `wait` oder `move`, aber man kann mit `url(image_path)` auch ein eigenes Bild festlegen die Limitierungen stehen auf [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Basic_User_Interface/Using_URL_values_for_the_cursor_property), wobei 64 die Breite und Höhe ist. 
-Mit `crosshair` legen wir fest, was passieren soll, wenn aus irgendeinem Grund unser Bild nicht genutzt werden kann.
-
-Um jetzt z.B. unsere Schriftart benutzen zu können, müssen wir sicherstellen, das zuerst die Bilder geladen sind. Dafür packen wir alles in unserer `index.ts` außer der letzten Zeile:
-```js
-// Starten der Engine
-game.start()
-```
-und dem Anfang:
-```js
-import * as ex from 'excalibur'
-import { Crosshair, MagazineDisplay, PointDisplay } from './ui'
-import { Enemy } from './enemy'
-var game = new ex.Engine({
-  // Stellt den Darstellungsmodus auf Fullscreen
-  displayMode: ex.DisplayMode.FullScreen,
-  backgroundColor: ex.Color.fromRGB(10, 100, 50)
-})
-```
-in eine neue Funktion, `main`:
-
-```js
-
-function main() {
-  game.canvas.style.cursor = 'url(images/crosshair.png) 64 64, crosshair'
-  .
-  .
-  .
-  var enemy2 = new Enemy(game.canvasWidth / 2 + 100, game.canvasHeight / 2)
-  game.add(enemy2)
-  enemy2.on("pointerdown", evt => {
-    points.addPoints(5)
-    enemy2.kill()
-  })
-}
-```
-Anschließend, können wir unseren `game.start()` Aufruf in der letzten Zeile ändern zu:
-```js
-// importieren von Loader mit 
-// import { Loader } from './resources'
-// nicht vergessen.
-game.start(Loader()).then(main)
-```
-Wodurch beim Starten des Spieles `Loader` aus der `resources.ts` ausgeführt wird, und anschließend (`then`) unsere `main`-Funktion. 
-
-Jetzt können wir endlich auch unser `Textures` und `SpriteFonts` verwenden.
-
-Dafür ändern wir bei unsrem `MagazineDisplay` `"💣"` zu `"a"` und fügen im `constructor` die Zeile `this.spriteFont = SpriteFonts.Parachute` hinzu, sodass wir:
-
-```ts
-export class MagazineDisplay extends ex.Label {
-    value = 0
-
-    constructor(startingValue: number, size: number, x: number, y: number) {
-        super({
-            text: "a".repeat(startingValue),
-            pos: new ex.Vector(x, y),
-            fontSize: size
-        })
-        this.value = startingValue
-        this.spriteFont = SpriteFonts.Parachute
-    }
-
-    public addShells(shells: number) {
-        this.value += shells
-        this.text = "a".repeat(this.value)
+    constructor(x: number, y: number, z = 25) {
+        super(x, y)
+        this.loc = this.starting_height = z
     }
 }
 ```
-bekommen, anschließend müssen wir nur noch die `import`s hinzufügen und unser Spiel hat die ersten Texturen.
+
+Wir nehmen erst mal diese Werte, wenn sie uns später nicht gefallen, können wir sie immernoch ändern.
+
+Damit wir ihn jetzt auch sehen können verwenden wir unsere Boxchute Texture von letztem mal in der `onInitialize()` Funktion, die ja bei der Erzeugung des Objekts aufgerufen wird.
+
+``` typescript
+onInitialize() {
+    this.addDrawing(Textures.Boxchute.asSprite().clone())
+    this.currentDrawing.scale = new ex.Vector(Boxchute.max_scale, Boxchute.max_scale)
+    this.currentDrawing.anchor.y = 0.3
+}
+```
+
+Dabei verschiebt das `this.currentDrawing.anchor` den "Aufhängepunkt" des Bildes um besser zur Texture zu passen, wenn ihr andere Texturen verwendet, müsst ihr das natürlich anpassen.
+
+Bisher hatten wir uns bei der Klick-Aktion auf das angeklickte Objekt verlassen, dies ändern wir jetzt, und fügen in `game.input.pointers.primary.on('down', function (evt){` die folgenden Zeilen ein, die einen Boxchute an der Position des Cursers erzeugen:
+
+``` typescript
+let bc = new Boxchute(evt.target.lastWorldPos.x, evt.target.lastWorldPos.y)
+game.add(bc)
+```
+
+Damit dieser wie für Fallschirme üblich fällt, erweitern wir die Klasse um eine Funktion `onPreUpdate(any, delta: number)` , diese wir immer ausgeführt bevor die restliche Update-Routine läuft.
+
+``` typescript
+onPreUpdate(any, delta: number) {
+    if (this.loc > 0) {
+        this.loc -= Boxchute.fallSpeed * delta
+        this.pos.y += Boxchute.fallSpeed * delta * 10
+        this.currentDrawing.scale = new VecN(fromRange(map(this.loc, this.starting_height, 0), Boxchute.max_scale, Boxchute.min_scale))
+    }
+}
+```
+
+Diese macht nichts anderes als den `Boxchute` mit `fallSpeed` "fallen" zu lassen. Dabei bewegt er sich nach unten, wird aber auch kleiner, durch die Änderung von `this.currentDrawing.scale` .
+
+Jetzt brauchen wir noch etwas zum "abwerfen", dafür nehmen wir die Truck-Textur von letztem mal.
+
+``` typescript
+export class Truck extends ex.Actor {
+    static minSpeed: number = 100
+    static speedRange: number = 20
+    constructor() {
+        super()
+        this.vel.x = Math.random() * Truck.speedRange + Truck.minSpeed
+    }
+
+    onInitialize() {
+        this.addDrawing(Textures.Truck)
+        this.currentDrawing.scale = new ex.Vector(0.5, 0.5)
+
+    }
+}
+```
+
+Da er so aber nichts macht, und ja auch nicht vom Spieler gesteuert, bauen wir ein System um ihn zufällig zu spawnen.
+Dazu verwenden wir das `playingField` in `util.ts` :
+
+``` typescript
+// wählt zufällig eine positive oder negative Geschwindigkeit. (fährt nach rechts bzw. links)
+this.vel.x = Math.random() > 0.5 ? -this.vel.x : this.vel.x
+// Spiegelt wenn nötig die Textur, abhängig von eurer, 
+// müsst ihr das möglicherweise anders herrum machen, d.h. >0.
+this.currentDrawing.flipHorizontal = this.vel.x > 0
+// Setzt Breite und Höhe auf die der Texture.
+this.width = this.currentDrawing.drawWidth
+this.height = this.currentDrawing.drawHeight
+
+// Positioniert, den Truck gerade so außerhalb, sodass man das spawnen nicht beobachten kann.
+this.pos.x = this.vel.x > 0 ? playingField.x1 - this.width / 2 : playingField.x2 + this.width / 2
+this.pos.y = Math.random() * (playingField.h - this.height / 2) + this.height / 2 + playingField.y1
+```
+
+solange wir jedoch das `playingField` nicht festlegen, funktioniert das noch nicht.
+
+Dafür erweitern wir unsere `main` Funktion in `index.ts` , gleich als am Anfang:
+``` typescript
+playingField.x1 = 0
+playingField.x2 = game.canvas.width
+playingField.y1 = 150
+playingField.y2 = game.canvas.height - 60
+```
+
+Die +150 und -60 dienen dazu oben und unten etwas Platz für das HUD freizuhalten.
+
+Wenn wir jetzt einen Truck erzeugen, sehen wir, dass er so wie vorgesehen über den Bildschirm fährt:
+
+```typescript
+var truck = new Truck()
+game.add(truck)
+```
+
+In Teil zwei bauen wir dann eine einfache Punktelogik.
