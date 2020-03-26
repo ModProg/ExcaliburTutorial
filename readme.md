@@ -1,129 +1,137 @@
-# Let's Game
+# Let's Game Teil 2
 
-Moin Kinners nach Corona und Prüfungsstress... Zeit für ein bisschen Spiel:
+Ich hoffe ich nehme das jetzt auch schnell auf, damit die beiden Teile zusammen kommen.
 
-## Aufräumen
+## Collision
 
-Wir löschen als erstes `enemy.ts` , natürlich auch den Verweis in `index.ts` .
-Und die beiden `Enemy` 's in `index.ts` .
-Wenn wir jetzt das Spiel mit unserem Task starten, haben wir nur die Hud-Elemente.
+Um die Punkte zu vergeben nutzen wir die Physics-Engine von Excalibur, wobei hierbei einige Kleinigkeiten beachtet werden müssen, wie ich schmerzlich erfahren musste, der Grund warum das alles so lange gedauert hat, aber der Reihe nach.
 
-## Utils
+Zuerst brauchen wir Hitboxen für unseren Truck und den Boxchute.
 
-Als nächstes bauen wir uns eine kleine Utility-Bibliothek, da dies zu lange dauerte hier zu erläutern verlinke ich sie nur. Die meisten Sachen habe ich in den Kommentaren erläutert.
-
-## Objects
-
-Da wir mit der `enemy.ts` alle unsere interaktiven Elemente entfernt haben brauchen wir neue, wir fangen mit dem Boxchute an:
+für meine Textur sind das beim Truck:
 
 ``` typescript
-export class Boxchute extends ex.Actor {
-    loc = 0
-    // Wenn der Boxchute niedriger ist kollidiert er
-    static collide_height = 12
+let trigger = new ex.Actor(-60, 0, 120, 50)
 
-    static max_scale = 1
-    static min_scale = 0.2
+let collider1 = new ex.Actor(30, -10, 40, 80)
 
-    static fallSpeed = 0.04
-    starting_height = 25
+let collider2 = new ex.Actor(70, 5, 60, 40)
+```
 
-    constructor(x: number, y: number, z = 25) {
-        super(x, y)
-        this.loc = this.starting_height = z
-    }
+Normalerweise, sollte man die jetzt einfach als Kind zum `Truck` hinzufügen können, da in dem Bereich Excalibur aber nicht so 100% so funktioniert wie ich dachte habe ich in `utils.ts` eine kleine Funktion namens `follow` gebaut, die nichts anderes macht als den `actor` zum `target` zu verschieben, wobei wir unsere relativen Koordinaten in `offset` packen:
+
+``` typescript
+export function follow(actor: ex.Actor, target: ex.Actor, offset: ex.Vector) {
+  actor.on("preupdate", () => actor.pos = target.pos.add(offset))
 }
 ```
 
-Wir nehmen erst mal diese Werte, wenn sie uns später nicht gefallen, können wir sie immernoch ändern.
-
-Damit wir ihn jetzt auch sehen können verwenden wir unsere Boxchute Texture von letztem mal in der `onInitialize()` Funktion, die ja bei der Erzeugung des Objekts aufgerufen wird.
+Mit dieser anpassung können wir das dann zusammen setzen, indem wir folgendes in `onInitialize` des `Truck`s packen:
 
 ``` typescript
-onInitialize() {
-    this.addDrawing(Textures.Boxchute.asSprite().clone())
-    this.currentDrawing.scale = new ex.Vector(Boxchute.max_scale, Boxchute.max_scale)
-    this.currentDrawing.anchor.y = 0.3
+// Trigger für Erfolg
+let trigger = new ex.Actor(0, 0, 120, 50)
+follow(trigger, this, new VecN(-60 * Math.sign(this.vel.x), 0))
+this.scene.add(trigger)
+
+// FrontCollider für Fehler
+let collider1 = new ex.Actor(0, 0, 40, 80)
+follow(collider1, this, new VecN(30 * Math.sign(this.vel.x), -10))
+this.scene.add(collider1)
+
+let collider2 = new ex.Actor(0, 0, 60, 40)
+follow(collider2, this, new VecN(70 * Math.sign(this.vel.x), 5))
+this.scene.add(collider2)
+```
+
+Um zu gucken ob die Hitboxen richtig sitzen, nutzen wir den Debug Modus. Zum Aktivieren fügen wir die Zeile:
+`game.isDebug = true` in unsere `main` Methode.
+
+Alternativ können wir auch eine kleine Funktion schreiben um per Tastendruck zu wechseln:
+
+``` typescript
+// Wird aufgerufen wenn eine Taste gedrückt wird
+game.input.keyboard.on("press", (event) => {
+    // Testet ob es die Taste `D` ist
+    if (event.key == ex.Input.Keys.D)
+        // Wenn ja, wechsele den Debug modus (an/aus)
+        game.isDebug = !game.isDebug
+})
+```
+
+Wenn wir jetzt `D` drücken, sehen wir das unsere Boxen zwar vieleicht nicht ganz genau passen, aber gut genug um weiter zu machen.
+
+Um bei einer Kollision `trigger` und `collider` unterscheiden zu können, verwenden wir `CollisionGroup`s.
+
+In `resources.ts` erzeugen wir zwei Gruppen `back` und `front` :
+
+``` typescript
+export const CollisionGroups = {
+    back: ex.CollisionGroupManager.create("back"),
+    front: ex.CollisionGroupManager.create("front")
 }
 ```
 
-Dabei verschiebt das `this.currentDrawing.anchor` den "Aufhängepunkt" des Bildes um besser zur Texture zu passen, wenn ihr andere Texturen verwendet, müsst ihr das natürlich anpassen.
-
-Bisher hatten wir uns bei der Klick-Aktion auf das angeklickte Objekt verlassen, dies ändern wir jetzt, und fügen in `game.input.pointers.primary.on('down', function (evt){` die folgenden Zeilen ein, die einen Boxchute an der Position des Cursers erzeugen:
+Die können dann in `objects.ts` genutzt werden um sie den einzelnen Hitboxen zu zuordnen.
 
 ``` typescript
-let bc = new Boxchute(evt.target.lastWorldPos.x, evt.target.lastWorldPos.y)
-game.add(bc)
+// Trigger für Erfolg
+let trigger = new ex.Actor(0, 0, 120, 50)
+trigger.body.collider.group = CollisionGroups.back;
+follow(trigger, this, new VecN(-60 * Math.sign(this.vel.x), 0))
+
+this.scene.add(trigger)
+
+// FrontCollider für Fehler
+let collider1 = new ex.Actor(0, 0, 40, 80)        
+collider1.body.collider.group = CollisionGroups.front;
+follow(collider1, this, new VecN(30 * Math.sign(this.vel.x), -10))
+
+this.scene.add(collider1)
+
+let collider2 = new ex.Actor(0, 0, 60, 40)
+collider2.body.collider.group = CollisionGroups.front;
+follow(collider2, this, new VecN(70 * Math.sign(this.vel.x), 5))
+
+this.scene.add(collider2)
 ```
 
-Damit dieser wie für Fallschirme üblich fällt, erweitern wir die Klasse um eine Funktion `onPreUpdate(any, delta: number)` , diese wir immer ausgeführt bevor die restliche Update-Routine läuft.
+Damit sie nicht mit der Textur selber kollidieren gibt verpassen wir dem `Truck` selber in `onInitialize` noch:
 
 ``` typescript
-onPreUpdate(any, delta: number) {
-    if (this.loc > 0) {
-        this.loc -= Boxchute.fallSpeed * delta
-        this.pos.y += Boxchute.fallSpeed * delta * 10
-        this.currentDrawing.scale = new VecN(fromRange(map(this.loc, this.starting_height, 0), Boxchute.max_scale, Boxchute.min_scale))
-    }
-}
+// Damit nur die Collider kollidieren
+this.body.collider.type = ex.CollisionType.PreventCollision
 ```
 
-Diese macht nichts anderes als den `Boxchute` mit `fallSpeed` "fallen" zu lassen. Dabei bewegt er sich nach unten, wird aber auch kleiner, durch die Änderung von `this.currentDrawing.scale` .
-
-Jetzt brauchen wir noch etwas zum "abwerfen", dafür nehmen wir die Truck-Textur von letztem mal.
+Diese können wir dann in `BoxChute.onInitialize` nutzen:
 
 ``` typescript
-export class Truck extends ex.Actor {
-    static minSpeed: number = 100
-    static speedRange: number = 20
-    constructor() {
-        super()
-        this.vel.x = Math.random() * Truck.speedRange + Truck.minSpeed
-    }
-
-    onInitialize() {
-        this.addDrawing(Textures.Truck)
-        this.currentDrawing.scale = new ex.Vector(0.5, 0.5)
-
-    }
-}
+// Verhindert Collision der Textur
+this.body.collider.type = ex.CollisionType.PreventCollision
+// Hitbox
+let collider = new ex.Actor(0, 0, 50, 50)
+// Wird gefeuert, wenn zwei Collider sich berühren
+collider.body.collider.on("collisionstart", (event) => {
+    // Kollidiert nur wenn der `Boxchute` niedrig genug ist
+    if (this.loc <= Boxchute.collide_height)
+        switch (event.other.group) {
+            case CollisionGroups.back:
+                // Jedes erfolgreiche Landen auf der Ladefläche bringt 5 Punkte
+                points.addPoints(5)
+            case CollisionGroups.front:
+                // Ansonsten verschwindet der `Boxchute` 
+                collider.kill()
+                this.kill()
+        }
+})
+// VecN erzeugt einen Vector mit den Koordinaten (0,0), in `utils.ts` definiert
+follow(collider, this, new VecN())
+this.scene.add(collider)
 ```
 
-Da er so aber nichts macht, und ja auch nicht vom Spieler gesteuert, bauen wir ein System um ihn zufällig zu spawnen.
-Dazu verwenden wir das `playingField` in `util.ts` :
-
-``` typescript
-// wählt zufällig eine positive oder negative Geschwindigkeit. (fährt nach rechts bzw. links)
-this.vel.x = Math.random() > 0.5 ? -this.vel.x : this.vel.x
-// Spiegelt wenn nötig die Textur, abhängig von eurer, 
-// müsst ihr das möglicherweise anders herrum machen, d.h. >0.
-this.currentDrawing.flipHorizontal = this.vel.x > 0
-// Setzt Breite und Höhe auf die der Texture.
-this.width = this.currentDrawing.drawWidth
-this.height = this.currentDrawing.drawHeight
-
-// Positioniert, den Truck gerade so außerhalb, sodass man das spawnen nicht beobachten kann.
-this.pos.x = this.vel.x > 0 ? playingField.x1 - this.width / 2 : playingField.x2 + this.width / 2
-this.pos.y = Math.random() * (playingField.h - this.height / 2) + this.height / 2 + playingField.y1
-```
-
-solange wir jedoch das `playingField` nicht festlegen, funktioniert das noch nicht.
-
-Dafür erweitern wir unsere `main` Funktion in `index.ts` , gleich als am Anfang:
-``` typescript
-playingField.x1 = 0
-playingField.x2 = game.canvas.width
-playingField.y1 = 150
-playingField.y2 = game.canvas.height - 60
-```
-
-Die +150 und -60 dienen dazu oben und unten etwas Platz für das HUD freizuhalten.
-
-Wenn wir jetzt einen Truck erzeugen, sehen wir, dass er so wie vorgesehen über den Bildschirm fährt:
-
+Damit wir `points` in `objects.ts` verändern können müssen wir es in `index.ts`  `export`ieren, indem wir die Erzeugung vor `main` ziehen:
 ```typescript
-var truck = new Truck()
-game.add(truck)
+export const points = new PointDisplay("Score: ", 0, 50, 10, 70)
 ```
 
-In Teil zwei bauen wir dann eine einfache Punktelogik.
+Jetzt bekommen wir 5 Punkte wenn die Kiste genau im Truck landet, und der Fallschirm wird zerstört wenn er mit dem Truck kollidiert.
