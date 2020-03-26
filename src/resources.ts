@@ -32,8 +32,13 @@ export function Loader() {
     // `Object.values` erzeugt einen Array mit allen Werten von `Textures`
     let loader = new ex.Loader(Object.values(Textures))
     loader.oncomplete = () => {
-      // Die Schriftart können wir erst erzeugen, wenn die Texturen geladen sind.
-      font("Parachute")
+        // Die Schriftart können wir erst erzeugen, wenn die Texturen geladen sind.
+        font("Parachute")
     }
     return loader
-  }
+}
+
+export const CollisionGroups = {
+    back: ex.CollisionGroupManager.create("back"),
+    front: ex.CollisionGroupManager.create("front")
+}

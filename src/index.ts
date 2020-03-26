@@ -8,6 +8,7 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FullScreen,
   backgroundColor: ex.Color.fromRGB(10, 100, 50)
 })
+export const points = new PointDisplay("Score: ", 0, 50, 10, 70)
 
 function main() {
 
@@ -16,7 +17,6 @@ function main() {
   playingField.x2 = game.canvas.width
   playingField.y1 = 150
   playingField.y2 = game.canvas.height - 60
-
 
   var truck = new Truck()
   game.add(truck)
@@ -31,11 +31,15 @@ function main() {
       location.reload()
   })
 
+  game.input.keyboard.on("press", (event) => {
+    if (event.key == ex.Input.Keys.D)
+      game.isDebug = !game.isDebug
+  })
+
   var magazine = new MagazineDisplay(5, 50, game.canvasWidth - 10, 70)
   magazine.textAlign = ex.TextAlign.Right
   game.add(magazine)
 
-  var points = new PointDisplay("Score: ", 0, 50, 10, 70)
   game.add(points)
 }
 // Starten der Engine
