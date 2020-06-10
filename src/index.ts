@@ -2,7 +2,7 @@ import * as ex from 'excalibur'
 import { Crosshair, MagazineDisplay, PointDisplay } from './ui'
 import { Loader } from './resources'
 import { Boxchute, Truck } from './objects'
-import { playingField } from '../utils'
+import { playingField } from './utils'
 var game = new ex.Engine({
   // Stellt den Darstellungsmodus auf Fullscreen
   displayMode: ex.DisplayMode.FullScreen,

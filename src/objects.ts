@@ -1,6 +1,6 @@
 import * as ex from 'excalibur'
 import { Textures } from './resources'
-import { follow, VecN, fromRange, map, playingField } from '../utils'
+import { follow, VecN, fromRange, map, playingField } from './utils'
 
 export class Truck extends ex.Actor {
     static minSpeed: number = 100
