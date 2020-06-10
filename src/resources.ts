@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import * as ex from 'excalibur'
+=======
+import * as ex from "excalibur"
+>>>>>>> b2043c7afa08dee85ba5cb08849dcb74c6616d3d
 
 function tex(path: string) {
     // Lädt eine Texture mit dem Namen `path`

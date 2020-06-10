@@ -1,9 +1,9 @@
-const path = require('path')
-const webpack = require('webpack')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const HtmlWebPackPlugin = require('html-webpack-plugin')
-const webpackMerge = require("webpack-merge")
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const path = require('path');
+const webpack = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+const webpackMerge = require("webpack-merge");
 
 const modeConfig = env => require(`./build-utils/webpack.${env}`)(env)
 
@@ -18,7 +18,7 @@ module.exports = ({ mode, presets } = { mode: "production", presets: [] }) => {
           test: /\.js$/,
           use: ["source-map-loader"],
           exclude: [
-            path.resolve(__dirname,'node_modules/excalibur')
+            path.resolve(__dirname, 'node_modules/excalibur')
           ],
           enforce: "pre",
         },
@@ -53,12 +53,13 @@ module.exports = ({ mode, presets } = { mode: "production", presets: [] }) => {
     },
     plugins: [
       new CleanWebpackPlugin({}),
+      new CopyWebpackPlugin([{ from: 'src/images', to: 'images' }]),
       new HtmlWebPackPlugin({
         title: 'Excalibur Webpack Sample'
       }),
       new CopyWebpackPlugin([{ from: 'src/images', to: 'images' }]),
     ]
   },
-  modeConfig(mode)
-  )
-}
+    modeConfig(mode)
+  );
+};
